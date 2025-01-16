@@ -1,0 +1,304 @@
+{
+	"info": {
+		"_postman_id": "2db207d2-012c-41c4-aa08-26cd83ac29da",
+		"name": "Hawkeye",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "6821163"
+	},
+	"item": [
+		{
+			"name": "Repository",
+			"item": [
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\":\"Plane\",\n    \"slug\": \"plane\",\n    \"apiKey\":\"\",\n    \"url\":\"https://github.com/makeplane/plane\",   \n    \"ignore\": \".github,external,**.md,**.txt\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/repository/create",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"repository",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getRepository",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/repository/get",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"repository",
+								"get"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getRepositories",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/repository/get/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"repository",
+								"get",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/repository/update/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"repository",
+								"update",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "sync",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/repository/sync/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"repository",
+								"sync",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/repository/delete/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"repository",
+								"delete",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Organization",
+			"item": [
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\":\"teste\",\n    \"key\": \"teste\",\n    \"url\":\"teste\",\n    \"apikey\": \"teste\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/organization/create",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"organization",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getOrganizations",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/organization/get",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"organization",
+								"get"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getOrganization",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/organization/get/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"organization",
+								"get",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/organization/update/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"organization",
+								"update",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/organization/delete/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"organization",
+								"delete",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Agent",
+			"item": [
+				{
+					"name": "CheckFalsePositives",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"repositoryId\": 30,\n\"sarifContent\":{\n          \"fingerprints\": {\n            \"matchBasedId/v1\": \"83f786a21b4e6f3bbd1c9b4edb5d109275bb673530d872e531a3f3d407d644ce60ef963feb94ae4a4636b293f6fd64f2b8d4b31531b1f68b9237f3dd8eda3d47_0\"\n          },\n          \"locations\": [\n            {\n              \"physicalLocation\": {\n                \"artifactLocation\": {\n                  \"uri\": \"apiserver/plane/authentication/adapter/base.py\",\n                  \"uriBaseId\": \"%SRCROOT%\"\n                },\n                \"region\": {\n                  \"endColumn\": 52,\n                  \"endLine\": 143,\n                  \"snippet\": {\n                    \"text\": \"                user.set_password(uuid.uuid4().hex)\"\n                  },\n                  \"startColumn\": 17,\n                  \"startLine\": 143\n                }\n              }\n            }\n          ],\n          \"message\": {\n            \"text\": \"The password on 'user' is being set without validating the password. Call django.contrib.auth.password_validation.validate_password() with validation functions before setting the password. See https://docs.djangoproject.com/en/3.0/topics/auth/passwords/ for more information.\"\n          },\n          \"properties\": {},\n          \"ruleId\": \"python.django.security.audit.unvalidated-password.unvalidated-password\"\n        }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/agent/checkForFalsePositives",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"agent",
+								"checkForFalsePositives"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3500",
+			"type": "string"
+		}
+	]
+}
