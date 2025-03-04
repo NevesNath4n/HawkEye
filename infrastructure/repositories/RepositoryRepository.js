@@ -41,30 +41,45 @@ export default class RepositoryRepository {
         if (error) {
             throw error;
         }
+
         console.log("retornando simples repositorio"+id)
-        console.log("repositorio: "+ data)
+        console.log("repositorio: "+ JSON.stringify(data))
+        return data;
+    }
+
+    async getRepositoryByTeamId(teamId){
+        const { data, error } = await client
+            .from("repository")
+            .select("*")
+            .eq("team_id", teamId);
+        if (error) {
+            throw error;
+        }
         return data;
     }
 
     async updateRepository(id, repository) {
-        const { data, error } = await client
+        delete repository.id;
+        console.log(repository)
+        const { error } = await client
             .from("repository")
             .update(repository)
             .eq("id", id);
         if (error) {
             throw error;
         }
-        return data;
+        repository.id = id;
+        return repository;
     }
 
     async deleteRepository(id) {
-        const { data, error } = await client
+        const { error } = await client
             .from("repository")
             .delete()
             .eq("id", id);
         if (error) {
             throw error;
         }
-        return data;
+        return true;
     }
 }

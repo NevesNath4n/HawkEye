@@ -18,10 +18,13 @@
     "@supabase/supabase-js": "^2.47.11",
     "ai": "^4.0.33",
     "axios": "^1.7.9",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "ignore": "^5.3.2",
     "langchain": "^0.3.10",
+    "mailtrap": "^3.4.0",
+    "nodemailer": "^6.10.0",
     "ollama-ai-provider": "^1.1.0",
     "zod": "^3.24.1"
   }

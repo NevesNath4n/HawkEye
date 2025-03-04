@@ -18,6 +18,10 @@ export default class RepositoryService{
         return createdRepository
     }
 
+    async getRepositoriesByTeamId(teamId){
+        return await this.repositoryRepository.getRepositoryByTeamId(teamId)
+    }
+
     async getRepository(id){
         return await this.repositoryRepository.getRepositoryById(id)
     }
@@ -55,14 +59,16 @@ export default class RepositoryService{
     
     
     async updateRepository(repository){
-        let updatedRepository = await this.repositoryRepository.update(repository)
+        
+        let updatedRepository = await this.repositoryRepository.updateRepository(repository.id,repository)
         if(updatedRepository.apiKey){
+            console.log("id:"+updatedRepository.id)
             await this.syncRepository(updatedRepository.id)
         }
         return updatedRepository;
     }
     
     async deleteRepository(id){
-        return await this.repositoryRepository.delete(id)
+        return await this.repositoryRepository.deleteRepository(id)
     }
 }

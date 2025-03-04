@@ -1,6 +1,10 @@
- //TODO FIX THIS TO USE IT AS A SINGLE INSTANCE FOR THE ENTIRE PROJECT
- 
- const embeddings = new OllamaEmbeddings({
+import { OllamaEmbeddings } from "@langchain/ollama";
+import dotenv from "dotenv";
+dotenv.config({path:'../../../../.env'})
+let baseUrl = process.env.OLLAMA_BASE_URL;
+const embeddingModel = new OllamaEmbeddings({
         model: "all-minilm",
-        baseUrl:"http://192.168.1.79:8080"
-    });
+        baseUrl
+});
+
+export default embeddingModel;

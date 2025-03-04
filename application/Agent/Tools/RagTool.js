@@ -1,17 +1,11 @@
 import {z} from 'zod';
 import {tool} from 'ai';
 import client from "../../../infrastructure/supabase/client.js";
-import axios from 'axios';
-import { OllamaEmbeddings } from "@langchain/ollama";
 import { SupabaseVectorStore } from "@langchain/community/vectorstores/supabase";
+import embeddingModel from '../../../infrastructure/llm/ollama/embeddings/embeddingModel.js';
 async function executeQuery({query,filters}){
     
-    const embeddings = new OllamaEmbeddings({
-        model: "all-minilm",
-        baseUrl:"http://192.168.1.79:8080"
-    });
-
-    const vectorStore = new SupabaseVectorStore(embeddings, {
+    const vectorStore = new SupabaseVectorStore(embeddingModel, {
         client: client,
         tableName: "documents",
         queryName: "match_documents",

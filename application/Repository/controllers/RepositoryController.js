@@ -24,7 +24,16 @@ export default class RepositoryController {
 
     async getRepositories(req, res) {
         try {
-            const repositories = await this.repositoryService.getRepositories();
+            const repositories = await this.repositoryService.getAllRepositories();
+            res.status(200).json(repositories);
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    async getRepositoriesByTeamId(req, res) {
+        try {
+            const repositories = await this.repositoryService.getRepositoriesByTeamId(req.params.teamId);
             res.status(200).json(repositories);
         } catch (error) {
             res.status(500).json({ error: error.message });
@@ -42,7 +51,7 @@ export default class RepositoryController {
 
     async updateRepository(req, res) {
         try {
-            const repository = await this.repositoryService.updateRepository(req.params.id, req.body);
+            const repository = await this.repositoryService.updateRepository(req.body);
             res.status(200).json(repository);
         } catch (error) {
             res.status(500).json({ error: error.message });
