@@ -41,6 +41,13 @@ export default class Engine {
         return this;
     }
 
+    setMessages(messages) {
+        this.object['messages'] = messages;
+        return this;
+    }
+
+
+
     async generateText() {
         const { text: answer } = await generateText(this.object);
         return answer;

@@ -1,122 +1,123 @@
 import client from "../../../infrastructure/supabase/client.js";
 import OrganizationRepository from "../../../infrastructure/repositories/OrganizationRepository.js";
-import { GitbookLoader } from "@langchain/community/document_loaders/web/gitbook";
 import { GithubRepoLoader } from "@langchain/community/document_loaders/web/github";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
-import axios from "axios";
-import { OllamaEmbeddings } from "@langchain/ollama";
+import { OpenAIEmbeddings } from "@langchain/openai";
 import { SupabaseVectorStore } from "@langchain/community/vectorstores/supabase";
+import dotenv from "dotenv";
+dotenv.config({ path: "../../../.env" });
 
-
-
-async function detectProgrammingLanguage(doc){
-    let extension = doc.metadata.source.split('.').pop();
-    let mapping = {
-        "html": "html",
-        "cpp": "cpp",
-        "go" : "go",
-        "java" : "java",
-        "js" : "js",
-        "php" : "php",
-        "proto" : "proto",
-        "py" : "python",
-        "rst" : "rst",
-        "rb" : "ruby",
-        "rust" : "rust",
-        "scala" : "scala",
-        "swift" : "swift",
-        "md": "markdown",
-        "latex" : "latex",
-        "sol" : "sol"
-    }
-
-    return mapping[extension] || undefined;
+async function detectProgrammingLanguage(doc) {
+  let extension = doc.metadata.source.split('.').pop();
+  const mapping = {
+    html: "html",
+    cpp: "cpp",
+    go: "go",
+    java: "java",
+    js: "js",
+    php: "php",
+    proto: "proto",
+    py: "python",
+    rst: "rst",
+    rb: "ruby",
+    rust: "rust",
+    scala: "scala",
+    swift: "swift",
+    md: "markdown",
+    latex: "latex",
+    sol: "sol",
+  };
+  return mapping[extension] || undefined;
 }
 
+async function processRepository(data) {
+  // Determine the API key
+  let apiKey = data.apiKey;
+  if (!apiKey) {
+    const organizationRepository = new OrganizationRepository();
+    const organization = await organizationRepository.getOrganizationById(data.organizationId);
+    apiKey = organization.apiKey;
+  }
+  console.log("Using API key:", apiKey);
 
+  // Initialize the GitHub repo loader with the desired options.
+  const loader = new GithubRepoLoader(data.url, {
+    accessToken: apiKey,
+    ignorePaths: data.ignore.split(","),
+    branch: "master", // LOAD ALL BRANCHES
+    unknown: "warn",
+    recursive: true,
+    maxConcurrency: 3,
+  });
 
+  // Collect all documents from the loader stream.
+  const docs = [];
+  for await (let doc of loader.loadAsStream()) {
+    docs.push(doc);
+  }
 
-async function proccessDoc(doc,data){
-    let programmingLanguage = await detectProgrammingLanguage(doc);
-    if(programmingLanguage){
-        const splitter = RecursiveCharacterTextSplitter.fromLanguage(programmingLanguage,{
-            chunkSize: 200,
-            chunkOverlap:0
+  // Create embeddings and vector store once per repository.
+  const embeddings = new OpenAIEmbeddings({
+    apiKey: process.env.OPENAI_API_KEY,
+    model: "text-embedding-3-large",
+    dimensions: 1536,
+  });
+  const vectorStore = new SupabaseVectorStore(embeddings, {
+    client: client,
+    tableName: "documents",
+    queryName: "match_documents",
+  });
+
+  // Process each document in parallel.
+  await Promise.all(
+    docs.map(async (doc) => {
+      const programmingLanguage = await detectProgrammingLanguage(doc);
+      console.log(programmingLanguage)
+      if (programmingLanguage) {
+        const splitter = RecursiveCharacterTextSplitter.fromLanguage(programmingLanguage, {
+          chunkSize: 1000,
+          chunkOverlap: 20,
         });
-        const embeddings = new OllamaEmbeddings({
-            model: "all-minilm",
-            baseUrl:"http://192.168.1.79:8080"
-        });
-
-        const vectorStore = new SupabaseVectorStore(embeddings, {
-            client: client,
-            tableName: "documents",
-            queryName: "match_documents",
-        });
-        let splittedDocs = await splitter.createDocuments([doc.pageContent]);
-        let documents = []
-        for  (let splittedDoc of splittedDocs){
-            documents.push({ pageContent: splittedDoc.pageContent,
-                metadata: {...doc.metadata,...splittedDoc.metadata,programmingLanguage,repositoryId:data.id}})
-
+        const splittedDocs = await splitter.createDocuments([doc.pageContent]);
+        const documents = splittedDocs.map((splittedDoc) => ({
+          pageContent: splittedDoc.pageContent,
+          metadata: {
+            ...doc.metadata,
+            ...splittedDoc.metadata,
+            programmingLanguage,
+            repositoryId: data.id,
+          },
+        }));
+        if (documents.length > 0) {
+          await vectorStore.addDocuments(documents);
         }
-        await vectorStore.addDocuments(documents)
-    }
-
+      }
+    })
+  );
 }
 
-
-
-
-async function RepositoryQueue(){
-    let {data:repositoryData,error} = await client.schema("pgmq_public").rpc('pop',{
-        queue_name:'repository_queue'
+async function RepositoryQueue() {
+  const { data: repositoryData, error } = await client
+    .schema("pgmq_public")
+    .rpc("pop", {
+      queue_name: "repository_queue",
     });
 
+  if (error) {
+    console.log("Error popping from queue:", error);
+    return;
+  }
+  if (repositoryData == null || repositoryData.length === 0) {
+    return;
+  }
 
-    if(error){
-        console.log(error)
-        return;
-    }
-
-    if(repositoryData != null && repositoryData.length == 0){
-        return;
-    }
-
-    let data = repositoryData[0].message;
-
-    
-    
-
-    let apiKey = data.apiKey
-    
-    if(apiKey == null){
-        let organizationRepository = new OrganizationRepository()
-        console.log(data)
-        let organization =  await organizationRepository.getOrganizationById(data.organizationId)
-        apiKey = organization.apiKey
-    }
-    
-    console.log(apiKey)
-        
-    const loader = new GithubRepoLoader(data.url,{
-        accessToken: apiKey,
-        ignorePaths:data.ignore.split(","),
-        branch:'master',
-        unknown: "warn",
-        recursive:true,
-        maxConcurrency:3
-    });
-
-    for await (let doc of loader.loadAsStream()){
-        console.log(data);
-        await proccessDoc(doc,data)
-    }
-
+  const data = repositoryData[0].message;
+  await processRepository(data);
 }
 
-
-while (true){
-    await RepositoryQueue()
-    await new Promise(r => setTimeout(r, 1000));
+while (true) {
+  await RepositoryQueue();
+  // Adjust the delay as needed.
+  console.log("Finished...");
+  await new Promise((resolve) => setTimeout(resolve, 1000));
 }

@@ -1,9 +1,8 @@
 "use client"
 
 import * as React from "react"
-import { ChevronLeft, ChevronsUpDown, MessageSquare, Plus, User } from "lucide-react"
-import { useRouter } from "next/navigation"
-
+import { ChevronLeft, ChevronsUpDown, MessageSquare, Plus, User,MoreHorizontal,Trash } from "lucide-react"
+import { useRouter,useParams } from "next/navigation"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -12,6 +11,7 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
+  SidebarMenuAction,
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarHeader,
@@ -19,24 +19,78 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import axios from "@/lib/axios";
+import { ThreadContext } from "@/app/chat/[id]/[[...thread]]/layout"
+import { useContext } from "react"
+import { NavUser } from "@/components/nav-user"
 
 // Sample data for repositories
-const repositories = [
-  { id: "1", name: "Personal Project" },
-  { id: "2", name: "Work Repository" },
-  { id: "3", name: "Research Papers" },
-]
+// const repositories = [
+//   { id: "1", name: "Personal Project" },
+//   { id: "2", name: "Work Repository" },
+//   { id: "3", name: "Research Papers" },
+// ]
 
 // Sample data for chat history
-const chatHistory = [
-  { id: "1", title: "How to implement authentication", date: "2 days ago" },
-  { id: "2", title: "Optimizing database queries", date: "1 week ago" },
-  { id: "3", title: "Building responsive layouts", date: "2 weeks ago" },
-]
 
-export function ChatSidebar() {
+
+export function ChatSidebar({repositories,repositoryId,chatHistory,setChatHistory}) {
   const router = useRouter()
-  const [selectedRepo, setSelectedRepo] = React.useState(repositories[0])
+  const [selectedRepo, setSelectedRepo] = React.useState(null)
+  const { threadId, setThreadId,newThread,setnewThread  } = useContext(ThreadContext);
+  const data = {
+    user: {
+      name: "shadcn",
+      email: "m@example.com",
+      avatar: "/avatars/shadcn.jpg",
+    }
+  }
+  const loadChatHistory = async () => {
+    let response = await axios.get("/chat/get?repositoryId="+selectedRepo.id)
+    setChatHistory(response.data)
+  }
+
+
+  const onDeleteChat = async (chatId) => {
+    let response = await axios.delete("/chat/delete/"+chatId)
+    if(response.status === 200){
+      let newChatHistory = chatHistory.filter((chat)=>(chat.id !== chatId))
+      setChatHistory(newChatHistory)
+    }
+    
+  }
+
+
+  // React.useEffect(()=>{
+  //   if(repositories.length > 0){
+  //     let repository = repositories.filter(repo => repo.id === Number(repositoryId))[0]
+  //     console.log(repository)
+  //     setSelectedRepo(repository);
+  //   }
+  // },[])
+
+  React.useEffect(()=>{
+    if(repositories.length > 0){
+      let repository = repositories.filter(repo => repo.id === Number(repositoryId))[0];
+      setSelectedRepo(repository);
+    }
+  },[repositories])
+
+  React.useEffect(()=>{
+    if(selectedRepo !== null){
+      loadChatHistory()
+      // Load chat history for selected repository
+    }
+  },[selectedRepo])
+
+
+  const handleThreadClick = async (repositoryId,chat) => {
+    window.history.replaceState(null,'',`/chat/${repositoryId}/${chat.id}`)
+    setThreadId(chat.id)
+  }
+
+
+
 
   return (
     (<Sidebar>
@@ -54,7 +108,7 @@ export function ChatSidebar() {
                   </div>
                   <div className="flex flex-col gap-0.5 leading-none">
                     <span className="font-semibold">Repository</span>
-                    <span className="text-xs text-muted-foreground">{selectedRepo.name}</span>
+                    {(selectedRepo !== null && selectedRepo !== undefined) && (<span className="text-xs text-muted-foreground">{selectedRepo.name}</span>)}
                   </div>
                   <ChevronsUpDown className="ml-auto size-4" />
                 </SidebarMenuButton>
@@ -71,7 +125,7 @@ export function ChatSidebar() {
         </SidebarMenu>
         <SidebarGroup className="py-2">
           <SidebarGroupContent>
-            <Button variant="outline" className="w-full justify-start">
+            <Button variant="outline" onClick={()=>{setnewThread(true)}} className="w-full justify-start">
               <Plus className="mr-2 size-4" />
               New Chat
             </Button>
@@ -86,14 +140,29 @@ export function ChatSidebar() {
               {chatHistory.map((chat) => (
                 <SidebarMenuItem key={chat.id}>
                   <SidebarMenuButton asChild tooltip={chat.title}>
-                    <a href={`/chat/${chat.id}`}>
+                    <span onClick={() => handleThreadClick(repositoryId, chat)} className="flex items-center gap-2">
                       <MessageSquare className="size-4" />
                       <span className="flex flex-col">
                         <span className="line-clamp-1">{chat.title}</span>
                         <span className="text-xs text-muted-foreground">{chat.date}</span>
                       </span>
-                    </a>
+                    </span>
                   </SidebarMenuButton>
+            
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <SidebarMenuAction showOnHover>
+                        <MoreHorizontal className="size-4" />
+                        <span className="sr-only">More options</span>
+                      </SidebarMenuAction>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent side="right" align="start">
+                      <DropdownMenuItem onClick={() => onDeleteChat(chat.id)} className="text-destructive focus:text-destructive">
+                        <Trash className="mr-2 size-4" />
+                        <span>Delete</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
@@ -111,17 +180,7 @@ export function ChatSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="User Profile">
-              <button onClick={() => router.push("/profile")}>
-                <Avatar className="size-6">
-                  <AvatarImage src="/placeholder.svg?height=32&width=32" alt="User" />
-                  <AvatarFallback>
-                    <User className="size-4" />
-                  </AvatarFallback>
-                </Avatar>
-                <span>John Doe</span>
-              </button>
-            </SidebarMenuButton>
+            <NavUser user={data.user} />
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>

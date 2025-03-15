@@ -76,7 +76,7 @@ export default function GitHubRepoCard({
                     <span>Go To</span>
                   </DropdownMenuItem>
                 </a>
-                <a href={"/chat"}>
+                <a href={"/chat/"+id}>
                   <DropdownMenuItem >
                       <MessageSquare className="mr-2 h-4 w-4" />
                       <span>Talk</span>

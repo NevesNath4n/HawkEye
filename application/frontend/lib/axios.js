@@ -13,6 +13,7 @@ instance.interceptors.response.use((response)=>{
     return response;
 },(error)=>{
     if(error.response.status == 401){
+        console.log(error);
         localStorage.removeItem("token");
         localStorage.removeItem("refresh_token");
         localStorage.removeItem("expires_at");
