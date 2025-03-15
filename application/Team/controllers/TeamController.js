@@ -46,8 +46,8 @@ export default class TeamController {
 
     async getTeams(req, res) {
         try {
-            const repositories = await this.teamService.getTeams();
-            res.status(200).json(repositories);
+            const teams = await this.teamService.getTeams(req.user.sub);
+            res.status(200).json(teams);
         } catch (error) {
             res.status(500).json({ error: error.message });
         }
