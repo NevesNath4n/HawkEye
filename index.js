@@ -11,6 +11,11 @@ import ChatRepository from "./infrastructure/repositories/ChatRepository.js";
 import TeamService from './application/Team/service/TeamService.js'
 import TeamRepository from './infrastructure/repositories/TeamRepository.js'
 import TeamMembersRepository from './infrastructure/repositories/TeamMemberRepository.js';
+import PromptRepository from "./infrastructure/repositories/PromptRepository.js";
+import PromptService from "./application/Settings/service/PromptService.js";
+import SettingsController from "./application/Settings/controller/SettingsController.js";
+import ApiTokensService from "./application/Settings/service/ApiTokensService.js";
+import ApiTokenRepository from "./infrastructure/repositories/ApiTokenRepository.js";
 import UserRepository from "./infrastructure/repositories/UserRepository.js";
 import dotenv from "dotenv";
 import authorizeUser from "./application/Middlewares/authorizeUser.js";
@@ -22,7 +27,9 @@ app.use(express.json())
 app.use(cors({
     origin: '*' //TODO change this before production
 }))
-
+let promptService = new PromptService(new PromptRepository())
+let apiTokenService = new ApiTokensService(new ApiTokenRepository())
+let settingsController = new SettingsController(promptService,apiTokenService)
 let chatService = new ChatService(new ChatRepository())
 let chatController = new ChatController(chatService)
 let organizationService = new OrganizationService()
@@ -65,6 +72,19 @@ app.delete("/chat/delete/:id",authorizeUser,chatController.deleteThread.bind(cha
 
 //Agent
 app.post("/agent/checkForFalsePositives",authorizeUser,agentController.checkForFalsePositives.bind(agentController))
+
+//Settings
+app.post("/settings/prompt/create",authorizeUser,settingsController.createPrompt.bind(settingsController))
+app.get("/settings/prompt/team/:teamId/get",authorizeUser,settingsController.getPrompts.bind(settingsController))
+app.get("/settings/prompt/:id/get",authorizeUser,settingsController.getPromptById.bind(settingsController))
+app.put("/settings/prompt/:id/update",authorizeUser,settingsController.updatePrompt.bind(settingsController))
+app.put("/settings/prompt/:id/status",authorizeUser,settingsController.changePromptStatus.bind(settingsController))
+app.post("/settings/prompt/:id/test",authorizeUser,settingsController.testPrompt.bind(settingsController))
+app.delete("/settings/prompt/:id/delete",authorizeUser,settingsController.deletePrompt.bind(settingsController))
+app.post("/settings/token/create",authorizeUser,settingsController.createApiToken.bind(settingsController))
+app.get("/settings/token/get",authorizeUser,settingsController.getApiTokens.bind(settingsController))
+app.delete("/settings/token/:id/delete",authorizeUser,settingsController.deleteApiToken.bind(settingsController))
+
 
 
 app.listen(3500,()=>{

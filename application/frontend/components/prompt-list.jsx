@@ -94,7 +94,7 @@ export function PromptList({
                       </Badge>
                     </div>
                   </TableCell>
-                  <TableCell>{formatDate(prompt.updatedAt)}</TableCell>
+                  <TableCell>{formatDate(prompt.updated_at)}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -108,10 +108,10 @@ export function PromptList({
                           <Edit className="mr-2 h-4 w-4" />
                           Edit
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => onTest(prompt)}>
+                        {/*<DropdownMenuItem onClick={() => onTest(prompt)}>
                           <Play className="mr-2 h-4 w-4" />
                           Test
-                        </DropdownMenuItem>
+                        </DropdownMenuItem>*/}
                         <DropdownMenuItem
                           className="text-destructive focus:text-destructive"
                           onClick={() => confirmDelete(prompt.id)}>
