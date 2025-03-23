@@ -39,9 +39,9 @@ export default class TeamService {
         }
     }
 
-    async getTeams() {
+    async getTeams(userId) {
         try {
-            return await this.teamRepository.getTeams();
+            return await this.teamRepository.getTeams(userId);
         } catch (error) {
             throw error;
         }

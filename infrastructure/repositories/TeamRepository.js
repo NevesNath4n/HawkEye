@@ -11,15 +11,13 @@ export default class TeamRepository {
         return data;
     }
 
-
-    
-
-
-    async getTeams() {
+    async getTeams(userId) {
         const { data, error } = await client
             .from("team")
-            .select("*");
+            .select("id, name, team_member!inner (user_id)")
+            .eq("team_member.user_id", userId); 
         if (error) {
+            console.log(error);
             throw error;
         }
         return data;
