@@ -88,9 +88,10 @@ export default class SettingsController{
     async createApiToken(req,res){
         try{
             let apiToken = req.body;
+            apiToken.created_by = req.user.sub;
             apiToken.token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
             const response = await this.apiTokensService.createApiToken(apiToken);
-            res.status(201).json(response);
+            res.status(201).json(apiToken);
         }catch(error){
             res.status(400).json(error);
         }
@@ -102,6 +103,7 @@ export default class SettingsController{
             const response = await this.apiTokensService.getApiTokens(userId);
             res.status(200).json(response);
         }catch(error){
+            console.log(error)
             res.status(400).json(error);
         }
     }

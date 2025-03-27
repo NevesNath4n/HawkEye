@@ -12,7 +12,7 @@ async function executeQuery({query,filters}){
     });
     console.log(query)
     console.log(filters)
-    const similaritySearchResults  = await vectorStore.similaritySearch(query,10,filters)
+    const similaritySearchResults  = await vectorStore.similaritySearch(query,50,filters)
     console.log(similaritySearchResults)
     return similaritySearchResults;
 
@@ -20,18 +20,17 @@ async function executeQuery({query,filters}){
 
 
 let RagTool = tool({
-    description: 'A tool for searching for code patterns in an given repository with an integer id to identify potential vulnerabilities' +
-                'Example queries: '+
-                "'.select(', .innerHTML = ",
+    description: 'A tool for detecting potential vulnerabilities by searching for specific code patterns within a repository. ' +
+                 'For example, you can look for patterns like ".select(" or ".innerHTML = " to pinpoint areas of risk.',
     parameters: z.object({
-        query: z.string().describe('The code pattern to search for'),
+        query: z.string().describe('The code pattern to search for (e.g., ".select(" or ".innerHTML = ").'),
         filters: z.object({
-            repositoryId: z.number().optional().describe('The id of the repository to search in'),
-            source: z.string().optional().describe('The path to the file in the repository'),
-            programmingLanguage: z.string().optional().describe('The programming language of the file'),
-        }).describe('Filters to narrow down the search')
+            repositoryId: z.number().optional().describe('The unique repository ID where the search will be conducted.'),
+            source: z.string().optional().describe('The file path within the repository to limit the search.'),
+            programmingLanguage: z.string().optional().describe('The programming language of the source file, to refine search results.')
+        }).describe('Optional filters to narrow down the search scope.')
     }),
-    execute:executeQuery 
+    execute: executeQuery
 })
 
 

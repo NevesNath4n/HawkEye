@@ -1,6 +1,6 @@
 import { openai } from '@ai-sdk/openai';
 import dotenv from 'dotenv';
-import { generateText } from 'ai';
+import { generateObject, generateText } from 'ai';
 import RagTool from '../Tools/RagTool.js';
 import { createOllama, ollama } from 'ollama-ai-provider';
 
@@ -18,6 +18,12 @@ export default class Engine {
         } else {
             this.object['tools'] = { ...this.object['tools'], tool };
         }
+        console.log(this.object);
+        return this;
+    }
+
+    setTools(tools){
+        this.object['tools'] = tools;
         return this;
     }
 
@@ -46,11 +52,29 @@ export default class Engine {
         return this;
     }
 
+    setSchema(schema) {
+        this.object['schema'] = schema;
+        return this;
+    }
+    
+    setToolChoice(){
+        this.object['toolChoice'] = 'required';
+        return this;
+    }
 
+    async generateObject(){
+        const {object} = await generateObject(this.object);
+        return object;
+    }
 
     async generateText() {
         const { text: answer } = await generateText(this.object);
         return answer;
+    }
+
+    async generateToolCalls(){
+        const {toolCalls} = await generateText(this.object);
+        return toolCalls;
     }
 
     

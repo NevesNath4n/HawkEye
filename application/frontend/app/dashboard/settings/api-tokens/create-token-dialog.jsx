@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { AlertCircle } from "lucide-react"
-
+import axios from "@/lib/axios"
 const AVAILABLE_SCOPES = [
   { id: "read:users", label: "Read Users" },
   { id: "write:users", label: "Write Users" },
@@ -49,10 +49,10 @@ export function CreateTokenDialog({
       return
     }
 
-    if (selectedScopes.length === 0) {
+    /*if (selectedScopes.length === 0) {
       // You could add error state for scopes too
       return
-    }
+    }*/
 
     onCreateToken({
       name: name.trim(),
@@ -106,7 +106,7 @@ export function CreateTokenDialog({
             )}
           </div>
 
-          <div className="space-y-3">
+          {/*<div className="space-y-3">
             <Label>
               Token Permissions <span className="text-red-500">*</span>
             </Label>
@@ -123,7 +123,7 @@ export function CreateTokenDialog({
                 </div>
               ))}
             </div>
-          </div>
+          </div>*/}
 
           <div className="space-y-3">
             <Label>Token Expiration</Label>

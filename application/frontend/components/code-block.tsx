@@ -36,7 +36,7 @@ export default function CodeBlock({ language, value }: CodeBlockProps) {
     <div
       className={cn(
         "relative rounded-md overflow-hidden my-4 transition-all duration-300",
-        isMaximized ? "fixed inset-4 z-50 flex flex-col" : "w-full",
+        isMaximized ? "fixed inset-4 z-50 flex flex-col" : "w-50",
       )}
     >
       <div className="flex items-center justify-between bg-zinc-800 px-4 py-2">
@@ -65,14 +65,14 @@ export default function CodeBlock({ language, value }: CodeBlockProps) {
         <textarea
           value={codeValue}
           onChange={handleCodeChange}
-          className="flex-1 p-4 font-mono text-sm bg-zinc-900 text-zinc-100 outline-none resize-none"
+          className="flex-1 p-4 font-mono text-sm max-w-50 bg-zinc-900 text-zinc-100 outline-none resize-none"
           spellCheck="false"
         />
       ) : (
         <SyntaxHighlighter
           language={language || "javascript"}
           style={vscDarkPlus}
-          customStyle={{ margin: 0, borderRadius: 0 }}
+          customStyle={{ margin: 0, borderRadius: 0,width: "70%" }}
         >
           {codeValue}
         </SyntaxHighlighter>

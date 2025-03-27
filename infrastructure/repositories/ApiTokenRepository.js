@@ -1,4 +1,4 @@
-
+import client from "../supabase/client.js";
 
 
 export default class ApiTokenRepository{

@@ -71,7 +71,8 @@ app.put("/chat/update/:id",authorizeUser,chatController.createThreadMessage.bind
 app.delete("/chat/delete/:id",authorizeUser,chatController.deleteThread.bind(chatController))
 
 //Agent
-app.post("/agent/checkForFalsePositives",authorizeUser,agentController.checkForFalsePositives.bind(agentController))
+app.post("/agent/checkForFalsePositives",agentController.checkForFalsePositives.bind(agentController))
+app.post("/agent/receivePullRequest",agentController.receivePullRequest.bind(agentController))
 
 //Settings
 app.post("/settings/prompt/create",authorizeUser,settingsController.createPrompt.bind(settingsController))

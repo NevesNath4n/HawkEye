@@ -7,7 +7,10 @@ import { Badge } from "@/components/ui/badge"
 import { PlusIcon, KeyIcon, ClockIcon, CheckCircleIcon, AlertCircleIcon } from "lucide-react"
 import { CreateTokenDialog } from "./create-token-dialog"
 import { TokenActions } from "./token-actions"
+import { useEffect } from "react"
 import { formatDistanceToNow } from "./utils"
+import axios from "@/lib/axios"
+import { toast } from "sonner"
 
 // This would come from your API in a real application
 const mockTokens = [
@@ -19,49 +22,84 @@ const mockTokens = [
     lastUsed: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
     scopes: ["read:users", "write:users", "read:projects"],
     expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year from now
-  },
-  {
-    id: "2",
-    name: "Development API",
-    prefix: "tk_dev_",
-    createdAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000), // 60 days ago
-    lastUsed: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000), // 15 days ago
-    scopes: ["read:users", "read:projects"],
-    expiresAt: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000), // 6 months from now
-  },
+  }
+ 
 ]
 
 export function TokenList({ isCreateDialogOpen, setIsCreateDialogOpen }) {
   const [tokens, setTokens] = useState(mockTokens)
   const [newToken, setNewToken] = useState(null)
 
-  const handleCreateToken = (token) => {
-    // In a real app, you would call your API to create the token
-    const newTokenObj = {
-      id: Math.random().toString(36).substring(7),
-      name: token.name,
-      prefix: `tk_${Math.random().toString(36).substring(7)}_`,
-      createdAt: new Date(),
-      lastUsed: null,
-      scopes: token.scopes,
-      expiresAt:
-        token.expiration === "never"
-          ? null
-          : new Date(Date.now() + Number.parseInt(token.expiration) * 24 * 60 * 60 * 1000),
-    }
-
-    setTokens([newTokenObj, ...tokens])
-
-    // In a real app, this would be the full token returned from your API
-    setNewToken(
-      `${newTokenObj.prefix}${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`
-    )
-    setIsCreateDialogOpen(false)
+  const getApiTokens = async () => {
+    let response = await axios.get("/settings/token/get")
+    setTokens(response.data)
   }
 
-  const handleRevokeToken = (id) => {
+
+  useEffect(()=>{
+    getApiTokens()
+  },[])
+
+
+
+
+  const handleCreateToken = async (token) => {
+    // Create the new token object
+    const newTokenObj = {
+      name: token.name,
+      // scopes: token.scopes,       
+    };
+  
+    if (token.expiration && token.expiration !== "never") {
+      newTokenObj.expires_at = new Date(Date.now() + Number.parseInt(token.expiration) * 24 * 60 * 60 * 1000);
+    }
+  
+    if (token.expires_at) {
+      newTokenObj.expires_at = token.expires_at;
+    }
+  
+    if (token.expiration && token.expiration === "never") {
+      newTokenObj.expires_at = "never";
+    }
+  
+    // Make API request to create the token
+    let response = await axios.post("/settings/token/create", newTokenObj);
+    
+    if (response.status === 201) {
+      // Ensure no duplicate tokens are added
+      setTokens((prevTokens) => {
+        // Filter out the token if it's already in the list
+        const filteredTokens = prevTokens.filter((existingToken) => existingToken.name !== newTokenObj.name);
+        return [newTokenObj, ...filteredTokens]; // Add the new token at the beginning
+      });
+  
+      setNewToken(response.data.token);
+      toast.success("Token created successfully");
+    }
+  
+    setIsCreateDialogOpen(false);
+  };
+  
+
+
+
+
+  const handleRevokeToken = async (id) => {
     // In a real app, you would call your API to revoke the token
-    setTokens(tokens.filter((token) => token.id !== id))
+    let response = await axios.delete(`/settings/token/${id}/delete`)
+    if(response.status === 200){
+      setTokens(tokens.filter((token) => token.id !== id))
+      toast.success("Token revoked successfully")
+    }
+  }
+
+
+  const handleRegenerateToken = async (id) => {
+    console.log("teste")
+    let token = tokens.filter((token) => token.id === id)
+    await setTokens(tokens.filter((token) => token.id !== id))
+    await handleRevokeToken(id)
+    await handleCreateToken(token[0])
   }
 
   return (<>
@@ -88,32 +126,32 @@ export function TokenList({ isCreateDialogOpen, setIsCreateDialogOpen }) {
             <div key={token.id} className="py-4 border-b last:border-0">
               <div className="flex items-center justify-between mb-2">
                 <div className="font-medium">{token.name}</div>
-                <TokenActions token={token} onRevoke={handleRevokeToken} />
+                <TokenActions onRegenerate={handleRegenerateToken} token={token} onRevoke={handleRevokeToken} />
               </div>
               <div className="flex items-center gap-4 text-sm text-muted-foreground mb-2">
                 <div className="flex items-center">
                   <ClockIcon className="mr-1 h-3 w-3" />
-                  Created {formatDistanceToNow(token.createdAt)}
+                  Created {formatDistanceToNow(token.inserted_at)}
                 </div>
-                {token.lastUsed && (
+                {/*token.lastUsed && (
                   <div className="flex items-center">
                     <CheckCircleIcon className="mr-1 h-3 w-3" />
                     Last used {formatDistanceToNow(token.lastUsed)}
                   </div>
-                )}
-                {token.expiresAt && (
+                )*/}
+                {token.expires_at && (
                   <div className="flex items-center">
                     <AlertCircleIcon className="mr-1 h-3 w-3" />
-                    Expires {formatDistanceToNow(token.expiresAt)}
+                    Expires {formatDistanceToNow(token.expires_at)}
                   </div>
                 )}
               </div>
               <div className="flex flex-wrap gap-1 mt-2">
-                {token.scopes.map((scope) => (
+                {/*token.scopes.map((scope) => (
                   <Badge key={scope} variant="secondary" className="text-xs">
                     {scope}
                   </Badge>
-                ))}
+                ))*/}
               </div>
             </div>
           ))

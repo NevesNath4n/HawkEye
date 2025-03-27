@@ -8,14 +8,17 @@ import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import axios from '@/lib/axios';
 import { BookPlus } from 'lucide-react';
+import { set } from 'zod';
 
 
 export default function RepositoryListPage({currentTeam}) {
     const router = useRouter();
     const searchParams = useSearchParams();
     const [search, setSearch] = useState(searchParams.get('repository') || "");
+    const [filteredRepositories, setFilteredRepositories] = useState([]);
     const [loading, setLoading] = useState(false);
     const [repositories, setRepositories] = useState([]);
+
 
     const getRepositories = async () => {
         setLoading(true);
@@ -27,6 +30,7 @@ export default function RepositoryListPage({currentTeam}) {
     useEffect(()=>{
         getRepositories().then((data) => {
             setRepositories(data);
+            setFilteredRepositories(data);
         }).catch(e=>{setLoading(false)});
 
 
@@ -35,8 +39,10 @@ export default function RepositoryListPage({currentTeam}) {
 
     useEffect(()=>{
         setRepositories([]);
+        setFilteredRepositories([]);
         getRepositories().then(data => {
             setRepositories(data);
+            setFilteredRepositories(data);
         }).catch(e=>setLoading(false));
     },[currentTeam])
    
@@ -48,8 +54,10 @@ export default function RepositoryListPage({currentTeam}) {
         if (search) {
             params.set('repository', search);
         } else {
+            setFilteredRepositories(repositories);
             params.delete('repository');
         }
+        setFilteredRepositories(repositories.filter((repo) => repo.name.toLowerCase().includes(search.toLowerCase())));
         router.push(`?${params.toString()}`, { scroll: false });
     }, [search, router, searchParams]);
 
@@ -101,7 +109,7 @@ export default function RepositoryListPage({currentTeam}) {
                     </Card>
                 </div>)}
 
-              {repositories.map((repo)=>(
+              {filteredRepositories.map((repo)=>(
                   <GitHubRepoCard
                     repository={repo}
                   />

@@ -16,10 +16,10 @@ export default function Page(){
     
     return(
         <div>
-            <Tabs defaultValue="account" className="w-full">
+            <Tabs defaultValue="repositories" className="w-full">
             <TabsList>
                 <TabsTrigger value="repositories">Repositories</TabsTrigger>
-                <TabsTrigger value="organizations">Organizations</TabsTrigger>
+                {/*<TabsTrigger value="organizations">Organizations</TabsTrigger>*/}
             </TabsList>
             <TabsContent value="repositories">
                 <RepositoryListPage currentTeam={currentTeam}/>  

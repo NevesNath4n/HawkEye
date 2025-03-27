@@ -5,7 +5,7 @@ import PromptSettingsPage from './prompt-settings/prompt-settings-page';
 
 export default function Page(){
     return(
-        <Tabs>
+        <Tabs defaultValue='tokens'>
             <TabsList>
                 <TabsTrigger value="tokens">Api tokens</TabsTrigger>
                 <TabsTrigger value="prompts">Prompts</TabsTrigger>

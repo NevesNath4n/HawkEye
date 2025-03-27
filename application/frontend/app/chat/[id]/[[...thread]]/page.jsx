@@ -62,7 +62,8 @@ export default function Chat() {
   useEffect(()=>{
     if(newThread){
       setMessages([]);
-      setThreadId(null);      
+      setThreadId(null);
+      console.log(newThread);      
       window.history.replaceState(null,'',"/chat/"+id);
     }
   },[newThread])
@@ -115,6 +116,11 @@ export default function Chat() {
     <HighlighterProvider>
     <div className="w-full max-w-full h-[85dvh]  mx-auto">
       <div className="px-4 h-full overflow-y-auto">
+      {(threadId === null || newThread) && (
+          <ChatStartPage promptSuggestions={promptSuggestions} handlePromptClick={handlePromptClick}/>
+      )}
+
+
         {messages.length > 0 && (
           <ScrollArea className=" pr-4">
             {messages.map((message) => (
@@ -130,7 +136,7 @@ export default function Chat() {
                     <AvatarFallback>AI</AvatarFallback>
                   </Avatar>
                 )}
-                <div className="flex-1 overflow-hidden">
+                <div className="max-w-full">
                   <p className="font-semibold">{message.role === "user" ? "You" : "AI"}</p>
                   <MarkdownRenderer>{message.content}</MarkdownRenderer>
                 </div>
@@ -139,9 +145,7 @@ export default function Chat() {
           </ScrollArea>
         )}
 
-        {(messages.length === 0 || newThread) && (
-          <ChatStartPage promptSuggestions={promptSuggestions} handlePromptClick={handlePromptClick}/>
-        )}
+      
 
         {loadingMessage && (
            <motion.div initial={{ opacity: 0, y: 20 }}

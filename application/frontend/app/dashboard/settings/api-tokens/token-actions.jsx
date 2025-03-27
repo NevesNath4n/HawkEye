@@ -16,10 +16,11 @@ import { MoreHorizontal, RefreshCw, Trash2 } from "lucide-react"
 
 export function TokenActions({
   token,
-  onRevoke
+  onRevoke,
+  onRegenerate,
 }) {
   const [isRevokeDialogOpen, setIsRevokeDialogOpen] = useState(false)
-
+  const [isRegenerateDialogOpen, setIsRegenerateDialogOpen] = useState(false)
   return (<>
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -32,9 +33,7 @@ export function TokenActions({
         <DropdownMenuItem
           className="text-amber-600 dark:text-amber-500 focus:text-amber-600 dark:focus:text-amber-500"
           onClick={() => {
-            // In a real app, this would open a dialog to confirm regeneration
-            // and then call your API to regenerate the token
-            alert("In a real app, this would regenerate the token")
+            setIsRegenerateDialogOpen(true)
           }}>
           <RefreshCw className="mr-2 h-4 w-4" />
           Regenerate
@@ -62,6 +61,25 @@ export function TokenActions({
             className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
             onClick={() => onRevoke(token.id)}>
             Revoke Token
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    <AlertDialog open={isRegenerateDialogOpen} onOpenChange={setIsRegenerateDialogOpen}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Regenerate Toekn</AlertDialogTitle>
+          <AlertDialogDescription>
+            Are you sure you want to regenerate the "{token.name}" API token? This action cannot be undone and any
+            applications using this token will no longer be able to access the API.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+            onClick={() => onRegenerate(token.id)}>
+            Regenerate Token
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

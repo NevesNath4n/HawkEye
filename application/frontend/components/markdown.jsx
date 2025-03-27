@@ -123,15 +123,15 @@ const CodeBlock = ({ node, inline, className, children, ...props }) => {
   // While the highlighter is loading, fallback to a simple preformatted block.
   if (!html) {
     return (
-      <pre className="bg-gray-800 text-white p-4 rounded overflow-x-auto">
+      <pre className="bg-gray-800 text-white p-4 rounded max-w-50">
         <code>{code}</code>
       </pre>
     );
   }
 
   return (
-    <>
-      <Card className="m-4" style={{ backgroundColor: "#111827" }}>
+    <div className={{maxWidth:"50%"}}>
+      <Card className="m-4" style={{ backgroundColor: "#111827",maxWidth:"80%" }}>
         <CardHeader className="flex flex-row items-center justify-between py-2 px-4">
           <div className="text-xs text-gray-400">{language}</div>
           <div className="flex space-x-2">
@@ -155,7 +155,7 @@ const CodeBlock = ({ node, inline, className, children, ...props }) => {
         </CardHeader>
         <CardContent className="">
           <div
-            className="overflow-x-auto overflow-y-auto  text-xs"
+            className="overflow-y-auto max-w-full  text-xs"
             dangerouslySetInnerHTML={{ __html: html }}
           />
         </CardContent>
@@ -167,13 +167,13 @@ const CodeBlock = ({ node, inline, className, children, ...props }) => {
         isOpen={isEditorOpen}
         onClose={() =>{setIsEditorOpen(false);setCode(editorContent)}}
       />
-    </>
+    </div>
   );
 };
 
 const MarkdownRenderer = ({ children }) => {
   return (
-    <div className="markdown-content">
+    <div className="markdown-content max-w-[100%] overflow-x-hidden">
       <Markdown
         components={{
           code: CodeBlock,

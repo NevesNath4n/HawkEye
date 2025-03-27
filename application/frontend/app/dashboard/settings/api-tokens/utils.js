@@ -2,7 +2,8 @@ export function formatDistanceToNow(date) {
   if (!date) return "never"
 
   const now = new Date()
-  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000)
+  const objDate = new Date(date)
+  const diffInSeconds = Math.floor((now.getTime() - objDate.getTime()) / 1000)
 
   // Future date
   if (diffInSeconds < 0) {

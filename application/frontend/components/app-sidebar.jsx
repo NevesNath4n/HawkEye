@@ -11,6 +11,7 @@ import {
   Map,
   PieChart,
   Settings2,
+  HouseIcon,
   SquareTerminal,
 } from "lucide-react"
 import AddSourceButton from "@/components/add-source-button"
@@ -35,29 +36,9 @@ const data = {
   },
   navMain: [
     {
-      title: "Playground",
-      url: "#",
-      icon: SquareTerminal,
-      isActive: true,
-      items: [
-        {
-          title: "History",
-          url: "#",
-        },
-        {
-          title: "Starred",
-          url: "#",
-        },
-        {
-          title: "Settings",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Models",
-      url: "#",
-      icon: Bot
+      title: "Dashboard",
+      url: "/dashboard",
+      icon: HouseIcon
     },
     {
       title: "Documentation",
@@ -66,7 +47,7 @@ const data = {
     },
     {
       title: "Settings",
-      url: "#",
+      url: "/dashboard/settings",
       icon: Settings2,
     },
   ]
